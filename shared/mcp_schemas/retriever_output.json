@@ -1,0 +1,154 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Retriever Output Schema",
+  "description": "Schema for retriever agent output following Model Context Protocol",
+  "type": "object",
+  "properties": {
+    "retrieval_id": {
+      "type": "string",
+      "description": "Unique identifier for this retrieval operation"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when retrieval was performed"
+    },
+    "query": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "Input query text"
+        },
+        "document_path": {
+          "type": ["string", "null"],
+          "description": "Path to uploaded document if provided"
+        },
+        "query_type": {
+          "type": "string",
+          "enum": ["text_only", "document_only", "text_and_document"],
+          "description": "Type of query input"
+        }
+      },
+      "required": ["text", "query_type"]
+    },
+    "results": {
+      "type": "object",
+      "properties": {
+        "rfp_matches": {
+          "type": "array",
+          "description": "Matches from RFP vector database",
+          "items": {
+            "$ref": "#/definitions/match"
+          }
+        },
+        "proposal_matches": {
+          "type": "array", 
+          "description": "Matches from proposal vector database",
+          "items": {
+            "$ref": "#/definitions/match"
+          }
+        },
+        "total_matches": {
+          "type": "integer",
+          "description": "Total number of matches returned"
+        }
+      },
+      "required": ["rfp_matches", "proposal_matches", "total_matches"]
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "retrieval_time_ms": {
+          "type": "number",
+          "description": "Time taken for retrieval in milliseconds"
+        },
+        "model_used": {
+          "type": "string",
+          "description": "Embedding model used for retrieval"
+        },
+        "search_parameters": {
+          "type": "object",
+          "properties": {
+            "top_k": {
+              "type": "integer",
+              "description": "Number of top results requested"
+            },
+            "similarity_threshold": {
+              "type": "number",
+              "description": "Minimum similarity score threshold"
+            }
+          }
+        }
+      },
+      "required": ["retrieval_time_ms", "model_used"]
+    }
+  },
+  "required": ["retrieval_id", "timestamp", "query", "results", "metadata"],
+  "definitions": {
+    "match": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Unique identifier for the chunk"
+        },
+        "content": {
+          "type": "string",
+          "description": "Text content of the matched chunk"
+        },
+        "source_file": {
+          "type": "string",
+          "description": "Name of the source file"
+        },
+        "similarity_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Cosine similarity score (0-1)"
+        },
+        "chunk_metadata": {
+          "type": "object",
+          "properties": {
+            "chunk_id": {
+              "type": "integer",
+              "description": "Chunk identifier within the document"
+            },
+            "start_char": {
+              "type": "integer",
+              "description": "Starting character position in original document"
+            },
+            "end_char": {
+              "type": "integer",
+              "description": "Ending character position in original document"
+            },
+            "document_type": {
+              "type": "string",
+              "enum": ["rfp", "proposal"],
+              "description": "Type of source document"
+            },
+            "category": {
+              "type": "string",
+              "description": "Document category or subdirectory"
+            },
+            "file_path": {
+              "type": "string",
+              "description": "Full path to source file"
+            },
+            "file_size": {
+              "type": "integer",
+              "description": "Size of source file in bytes"
+            },
+            "processed_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "When the document was processed"
+            }
+          },
+          "required": ["chunk_id", "document_type"]
+        }
+      },
+      "required": ["id", "content", "source_file", "similarity_score", "chunk_metadata"]
+    }
+  }
+} 
