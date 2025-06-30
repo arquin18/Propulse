@@ -1,0 +1,27 @@
+## Project Management Section Prompt
+
+You are writing the Project Management section of a proposal. This section should:
+
+1. **Outline project methodology** and management approach
+2. **Define project phases** and key milestones
+3. **Describe team structure** and roles
+4. **Present timeline** and delivery schedule
+5. **Address risk management** and contingency planning
+
+### Guidelines:
+- Use proven project management methodologies (Agile, Waterfall, hybrid)
+- Provide realistic timelines and milestones
+- Show clear accountability and governance structure
+- Address communication and reporting processes
+- Include quality assurance and change management
+
+### Structure:
+1. **Project Methodology**: Management approach and framework
+2. **Project Phases**: Breakdown of work stages and deliverables
+3. **Timeline & Milestones**: Detailed schedule with key dates
+4. **Team Structure**: Roles, responsibilities, and reporting
+5. **Communication Plan**: Stakeholder engagement and reporting
+6. **Risk Management**: Identification and mitigation strategies
+7. **Quality Assurance**: Standards and review processes
+
+Based on the retrieved context and user requirements, present a comprehensive project management approach that ensures successful delivery on time and within budget. 

@@ -1,0 +1,216 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Writer Output Schema",
+  "description": "Schema for writer agent output following Model Context Protocol",
+  "type": "object",
+  "properties": {
+    "generation_id": {
+      "type": "string",
+      "description": "Unique identifier for this content generation operation"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when content was generated"
+    },
+    "input_context": {
+      "type": "object",
+      "properties": {
+        "user_prompt": {
+          "type": "string",
+          "description": "Original user prompt"
+        },
+        "persona_used": {
+          "type": "string",
+          "description": "Persona identifier used for generation"
+        },
+        "retrieval_context": {
+          "type": "object",
+          "properties": {
+            "retrieval_id": {
+              "type": "string",
+              "description": "Reference to retrieval operation"
+            },
+            "total_chunks_used": {
+              "type": "integer",
+              "description": "Number of context chunks used"
+            },
+            "primary_sources": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Primary source files referenced"
+            }
+          },
+          "required": ["retrieval_id", "total_chunks_used"]
+        }
+      },
+      "required": ["user_prompt", "persona_used", "retrieval_context"]
+    },
+    "generated_content": {
+      "type": "object",
+      "properties": {
+        "sections": {
+          "type": "array",
+          "description": "Generated proposal sections",
+          "items": {
+            "$ref": "#/definitions/section"
+          }
+        },
+        "full_content": {
+          "type": "object",
+          "properties": {
+            "markdown": {
+              "type": "string",
+              "description": "Complete proposal in Markdown format"
+            },
+            "html": {
+              "type": "string",
+              "description": "Complete proposal in HTML format"
+            }
+          },
+          "required": ["markdown", "html"]
+        },
+        "word_count": {
+          "type": "integer",
+          "description": "Total word count of generated content"
+        },
+        "estimated_reading_time": {
+          "type": "integer",
+          "description": "Estimated reading time in minutes"
+        }
+      },
+      "required": ["sections", "full_content", "word_count"]
+    },
+    "generation_metadata": {
+      "type": "object",
+      "properties": {
+        "model_used": {
+          "type": "string",
+          "description": "AI model used for generation"
+        },
+        "model_version": {
+          "type": "string",
+          "description": "Version of the AI model"
+        },
+        "generation_time_ms": {
+          "type": "number",
+          "description": "Time taken for generation in milliseconds"
+        },
+        "token_usage": {
+          "type": "object",
+          "properties": {
+            "prompt_tokens": {
+              "type": "integer",
+              "description": "Number of tokens in the prompt"
+            },
+            "completion_tokens": {
+              "type": "integer",
+              "description": "Number of tokens in the completion"
+            },
+            "total_tokens": {
+              "type": "integer",
+              "description": "Total tokens used"
+            }
+          },
+          "required": ["prompt_tokens", "completion_tokens", "total_tokens"]
+        },
+        "quality_metrics": {
+          "type": "object",
+          "properties": {
+            "coherence_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Content coherence score"
+            },
+            "relevance_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Content relevance to prompt score"
+            },
+            "persona_alignment": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Alignment with selected persona"
+            }
+          }
+        },
+        "generation_parameters": {
+          "type": "object",
+          "properties": {
+            "temperature": {
+              "type": "number",
+              "description": "Generation temperature setting"
+            },
+            "max_tokens": {
+              "type": "integer",
+              "description": "Maximum tokens allowed"
+            },
+            "top_p": {
+              "type": "number",
+              "description": "Top-p sampling parameter"
+            }
+          }
+        }
+      },
+      "required": ["model_used", "generation_time_ms", "token_usage"]
+    }
+  },
+  "required": ["generation_id", "timestamp", "input_context", "generated_content", "generation_metadata"],
+  "definitions": {
+    "section": {
+      "type": "object",
+      "properties": {
+        "section_id": {
+          "type": "string",
+          "description": "Unique identifier for the section"
+        },
+        "section_type": {
+          "type": "string",
+          "enum": ["executive_summary", "technical_approach", "project_management", "team_qualifications", "budget", "timeline", "appendix", "custom"],
+          "description": "Type of section"
+        },
+        "title": {
+          "type": "string",
+          "description": "Section title"
+        },
+        "content": {
+          "type": "object",
+          "properties": {
+            "markdown": {
+              "type": "string",
+              "description": "Section content in Markdown"
+            },
+            "html": {
+              "type": "string",
+              "description": "Section content in HTML"
+            }
+          },
+          "required": ["markdown", "html"]
+        },
+        "word_count": {
+          "type": "integer",
+          "description": "Word count for this section"
+        },
+        "sources_referenced": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Source chunks referenced in this section"
+        },
+        "confidence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence score for section content quality"
+        }
+      },
+      "required": ["section_id", "section_type", "title", "content", "word_count"]
+    }
+  }
+} 

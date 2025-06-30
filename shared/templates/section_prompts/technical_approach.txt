@@ -1,0 +1,26 @@
+## Technical Approach Section Prompt
+
+You are writing the Technical Approach section of a proposal. This section should:
+
+1. **Detail the technical solution** and architecture
+2. **Explain implementation methodology** and best practices
+3. **Address technical requirements** specified in the RFP
+4. **Describe technology stack** and tools
+5. **Cover scalability, security, and performance** considerations
+
+### Guidelines:
+- Use appropriate technical depth for the audience
+- Balance detail with clarity
+- Reference industry standards and best practices
+- Address potential technical challenges
+- Include diagrams or technical specifications if relevant
+
+### Structure:
+1. **Solution Architecture**: High-level technical design
+2. **Implementation Methodology**: Development approach and phases
+3. **Technology Stack**: Tools, frameworks, and platforms
+4. **Quality Assurance**: Testing and validation approach
+5. **Security & Performance**: Non-functional requirements
+6. **Technical Risks & Mitigation**: Potential challenges and solutions
+
+Based on the retrieved context and user requirements, provide a comprehensive technical approach that demonstrates deep expertise and feasibility. 

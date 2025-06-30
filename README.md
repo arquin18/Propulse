@@ -2,61 +2,6 @@
 
 Propulse is a multi-agent system that leverages AI to generate high-quality proposals based on user prompts and RFP documents. The system uses vector databases to retrieve relevant context from past RFPs and proposals, ensuring generated content is both accurate and contextually appropriate.
 
-## 🌟 Features
-
-- **Smart Prompt Processing**: Accept user-written prompts describing proposal requirements
-- **Document Upload**: Support for PDF/DOCX RFP document uploads
-- **Dual Vector Database**: Separate databases for past RFPs and proposals
-- **Three-Stage Agent Pipeline**:
-  - Retriever Agent: Finds relevant content from vector DBs
-  - Writer Agent: Generates proposals using context and persona
-  - Verifier Agent: Ensures factual accuracy and compliance
-- **Modern Tech Stack**: Built with FastAPI, Streamlit, and Google Cloud Platform
-
-## 🚀 Quick Start
-
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/nerdy1texan/propulse.git
-   cd propulse
-   ```
-
-2. **Set Up Environment**
-   
-   For Windows Git Bash:
-   ```bash
-   # Initialize conda in Git Bash (do this once)
-   source ~/anaconda3/etc/profile.d/conda.sh
-
-   # Create and activate conda environment
-   conda env create -f environment.yml
-   conda activate propulse
-   ```
-
-   For other terminals:
-   ```bash
-   # Create and activate conda environment
-   conda env create -f environment.yml
-   conda activate propulse
-   ```
-
-3. **Configure Environment Variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-4. **Start Services**
-   ```bash
-   # Start backend
-   cd backend
-   uvicorn main:app --reload
-
-   # In another terminal, start frontend
-   cd frontend
-   streamlit run main.py
-   ```
-
 ## 🏗️ Architecture
 
 ### System Architecture
@@ -194,6 +139,50 @@ Propulse/
 └── README.md        # Project documentation
 ```
 
+## 🚀 Quick Start
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/nerdy1texan/propulse.git
+   cd propulse
+   ```
+
+2. **Set Up Environment**
+   
+   For Windows Git Bash:
+   ```bash
+   # Initialize conda in Git Bash (do this once)
+   source ~/anaconda3/etc/profile.d/conda.sh
+
+   # Create and activate conda environment
+   conda env create -f environment.yml
+   conda activate propulse
+   ```
+
+   For other terminals:
+   ```bash
+   # Create and activate conda environment
+   conda env create -f environment.yml
+   conda activate propulse
+   ```
+
+3. **Configure Environment Variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your GOOGLE_API_KEY and other configuration
+   ```
+
+4. **Build Vector Databases**
+   ```bash
+   python scripts/build_vector_db.py
+   ```
+
+5. **Test Writer Agent**
+   ```bash
+   export GOOGLE_API_KEY="your-gemini-api-key"
+   python -m backend.agents.writer_agent
+   ```
+
 ## 🔑 Key Features
 
 ### Implemented Components ✅
@@ -222,8 +211,18 @@ Propulse/
 - **Metadata Storage**: JSON-based chunk and database metadata
 - **Version Control**: Timestamped database builds with provenance tracking
 
+#### **Writer Agent** ✅
+- **Persona-Based Generation**: Six distinct writing personas (Executive, Technical, Consultant, Sales, Academic, Startup)
+- **Gemini 2.5 Flash Integration**: Advanced AI content generation using Google's latest Gemini 2.5 Flash model with adaptive thinking
+- **Section-Specific Prompting**: Structured templates for different proposal sections
+- **Markdown & HTML Output**: Dual-format content generation with proper formatting
+- **Token Usage Tracking**: Comprehensive logging of API usage and costs
+- **MCP Compliance**: Standardized input/output following Model Context Protocol
+- **Multi-Section Support**: Executive Summary, Technical Approach, Project Management sections
+- **Context Integration**: Seamless integration with retrieval agent results
+- **Quality Metrics**: Generation time tracking and confidence scoring
+
 ### Upcoming Components 🚧
-- Writer Agent: Context-aware proposal generation
 - Verifier Agent: Hallucination detection and fact-checking
 - API Integration: RESTful endpoints for agent coordination
 - Frontend Interface: Streamlit-based user interface
@@ -263,6 +262,32 @@ python scripts/build_vector_db.py --gpu
 python scripts/build_vector_db.py --model all-mpnet-base-v2
 ```
 
+### Writer Agent Operations
+```bash
+# Set up Google API key
+export GOOGLE_API_KEY="your-api-key-here"
+
+# Quick proposal generation
+python -m backend.agents.writer_agent
+
+# Test with different personas
+python -c "
+from backend.agents.writer_agent import WriterAgent, WriterInput
+agent = WriterAgent()
+result = agent.generate(WriterInput(
+    user_prompt='Build mobile app for fitness tracking',
+    persona='startup'
+))
+print(f'Generated {result.generated_content[\"word_count\"]} words')
+"
+
+# View token usage logs
+head -n 20 logs/token_usage.csv
+
+# Monitor generation logs
+tail -f logs/writer_agent.log
+```
+
 ### Retriever Agent Usage
 ```python
 # Basic retrieval example
@@ -292,6 +317,70 @@ result = agent.retrieve(query_with_doc)
 
 # Save results
 agent.save_result(result)
+```
+
+### Writer Agent Usage
+```python
+# Content generation with personas
+from backend.agents.writer_agent import WriterAgent, WriterInput
+
+# Initialize agent (requires GOOGLE_API_KEY environment variable)
+agent = WriterAgent()
+
+# Basic proposal generation
+writer_input = WriterInput(
+    user_prompt="Develop a web application for customer relationship management",
+    persona="technical",
+    sections_to_generate=["executive_summary", "technical_approach"]
+)
+result = agent.generate(writer_input)
+
+# Generation with retrieval context
+writer_input_with_context = WriterInput(
+    user_prompt="Build analytics dashboard",
+    persona="consultant",
+    retrieval_context=retrieval_result,  # From retriever agent
+    sections_to_generate=["executive_summary", "technical_approach", "project_management"],
+    generation_params={
+        "temperature": 0.8,
+        "max_tokens": 5000
+    }
+)
+result = agent.generate(writer_input_with_context)
+
+# Save results (creates JSON, MD, and HTML files)
+agent.save_result(result)
+
+# Available personas: executive, technical, consultant, sales, academic, startup
+```
+
+### Integrated Retrieval + Writing Workflow
+```python
+# Complete pipeline example
+from backend.agents.retriever_agent import RetrieverAgent, QueryInput
+from backend.agents.writer_agent import WriterAgent, WriterInput
+
+# Step 1: Retrieve relevant content
+retriever = RetrieverAgent()
+query = QueryInput(
+    text="Need e-commerce platform with payment processing",
+    top_k=10
+)
+retrieval_result = retriever.retrieve(query)
+
+# Step 2: Generate proposal with context
+writer = WriterAgent()
+writer_input = WriterInput(
+    user_prompt="Create comprehensive e-commerce solution with secure payments",
+    persona="consultant",
+    retrieval_context=retrieval_result.dict(),
+    sections_to_generate=["executive_summary", "technical_approach", "project_management"]
+)
+proposal = writer.generate(writer_input)
+
+# Step 3: Save complete proposal
+proposal_path = writer.save_result(proposal)
+print(f"Proposal generated: {proposal_path}")
 ```
 
 ### Testing
@@ -365,187 +454,6 @@ gcloud run services list
 gcloud storage ls
 ```
 
-## 🏗️ Architecture
-
-### System Architecture
-```mermaid
-graph TD
-    subgraph "Frontend Layer"
-        UI[Streamlit UI]
-        Upload[Document Upload]
-        Preview[Proposal Preview]
-    end
-
-    subgraph "Backend Layer"
-        API[FastAPI Service]
-        Auth[Authentication]
-        Cache[Redis Cache]
-    end
-
-    subgraph "Agent Pipeline"
-        R[Retriever Agent]
-        W[Writer Agent]
-        V[Verifier Agent]
-    end
-
-    subgraph "Storage Layer"
-        VDB1[Vector DB - RFPs]
-        VDB2[Vector DB - Proposals]
-        DB[(PostgreSQL)]
-        GCS[Cloud Storage]
-    end
-
-    UI --> API
-    Upload --> API
-    API --> Auth
-    API --> Cache
-    API --> R
-    R --> VDB1
-    R --> VDB2
-    R --> W
-    W --> V
-    V --> API
-    API --> Preview
-    API --> DB
-    API --> GCS
-```
-
-### Workflow Diagram
-```mermaid
-sequenceDiagram
-    actor User
-    participant UI as Frontend
-    participant API as Backend
-    participant R as Retriever
-    participant W as Writer
-    participant V as Verifier
-    participant DB as Databases
-
-    User->>UI: Upload RFP/Enter Prompt
-    UI->>API: Submit Request
-    API->>R: Get Relevant Context
-    R->>DB: Query Vector DBs
-    DB-->>R: Return Matches
-    R->>W: Context + Prompt
-    W->>V: Generated Proposal
-    V->>API: Verified Content
-    API->>UI: Return Proposal
-    UI->>User: Display Result
-```
-
-## 📁 Detailed Project Structure
-
-```
-Propulse/
-├── backend/                 # FastAPI backend service
-│   ├── agents/             # Agent implementations
-│   │   ├── retriever/      # Retriever agent logic
-│   │   │   ├── __init__.py
-│   │   │   ├── agent.py
-│   │   │   └── utils.py
-│   │   ├── writer/         # Writer agent logic
-│   │   │   ├── __init__.py
-│   │   │   ├── agent.py
-│   │   │   └── templates.py
-│   │   └── verifier/       # Verifier agent logic
-│   │       ├── __init__.py
-│   │       ├── agent.py
-│   │       └── rules.py
-│   ├── api/                # API endpoints
-│   │   ├── v1/
-│   │   │   ├── __init__.py
-│   │   │   ├── auth.py
-│   │   │   ├── proposals.py
-│   │   │   └── users.py
-│   │   └── middleware/
-│   ├── core/               # Core business logic
-│   │   ├── config/
-│   │   ├── models/
-│   │   └── services/
-│   ├── logs/              # Log files
-│   └── main.py
-├── frontend/              # Streamlit frontend
-│   ├── assets/           # Static assets
-│   │   ├── css/
-│   │   └── img/
-│   ├── components/       # Reusable components
-│   │   ├── upload/
-│   │   ├── prompt/
-│   │   └── preview/
-│   ├── pages/           # Application pages
-│   │   ├── home.py
-│   │   ├── generate.py
-│   │   └── history.py
-│   └── main.py
-├── shared/              # Shared resources
-│   ├── mcp_schemas/    # MCP protocol schemas
-│   │   ├── input/
-│   │   └── output/
-│   ├── sample_rfps/    # Sample RFP documents
-│   └── templates/      # Proposal templates
-├── infra/              # Infrastructure code
-│   ├── gcp/           # GCP configurations
-│   │   ├── backend/
-│   │   └── frontend/
-│   └── terraform/     # Terraform configurations
-├── scripts/           # Utility scripts
-│   ├── setup.sh
-│   └── cleanup.sh
-├── .github/           # GitHub configurations
-│   └── workflows/     # CI/CD workflows
-├── tests/            # Test suite
-│   ├── unit/
-│   └── integration/
-├── .env.example      # Environment variables template
-├── environment.yml   # Conda environment file
-├── .gitignore       # Git ignore rules
-└── README.md        # Project documentation
-```
-
-## 🚀 Quick Start
-
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/nerdy1texan/propulse.git
-   cd propulse
-   ```
-
-2. **Set Up Environment**
-   
-   For Windows Git Bash:
-   ```bash
-   # Initialize conda in Git Bash (do this once)
-   source ~/anaconda3/etc/profile.d/conda.sh
-
-   # Create and activate conda environment
-   conda env create -f environment.yml
-   conda activate propulse
-   ```
-
-   For other terminals:
-   ```bash
-   # Create and activate conda environment
-   conda env create -f environment.yml
-   conda activate propulse
-   ```
-
-3. **Configure Environment Variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-4. **Start Services**
-   ```bash
-   # Start backend
-   cd backend
-   uvicorn main:app --reload
-
-   # In another terminal, start frontend
-   cd frontend
-   streamlit run main.py
-   ```
-
 ## 🛠️ Development
 
 1. **Install Development Dependencies**
@@ -593,10 +501,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- [Issue Tracker](https://github.com/yourusername/propulse/issues)
-- [Project Wiki](https://github.com/yourusername/propulse/wiki)
+- [Issue Tracker](https://github.com/nerdy1texan/propulse/issues)
+- [Project Wiki](https://github.com/nerdy1texan/propulse/wiki)
 
 ## 👥 Team
 
 - Project Lead: [Maulin Raval](https://github.com/nerdy1texan)
-- Contributors: [See all contributors](https://github.com/yourusername/propulse/graphs/contributors)
+- Contributors: [See all contributors](https://github.com/nerdy1texan/propulse/graphs/contributors)
