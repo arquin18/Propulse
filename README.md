@@ -154,7 +154,7 @@ Propulse/
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/propulse.git
+   git clone https://github.com/nerdy1texan/propulse.git
    cd propulse
    ```
 
