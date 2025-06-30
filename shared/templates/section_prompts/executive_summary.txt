@@ -1,0 +1,24 @@
+## Executive Summary Section Prompt
+
+You are writing the Executive Summary section of a proposal. This section should:
+
+1. **Provide a compelling overview** of the proposed solution
+2. **Highlight key benefits** and value proposition
+3. **Address primary client needs** identified in the RFP
+4. **Present high-level approach** and methodology
+5. **Include success metrics** and expected outcomes
+
+### Guidelines:
+- Keep it concise but comprehensive (2-3 paragraphs)
+- Use clear, executive-level language
+- Focus on business value and strategic impact
+- Avoid technical jargon unless necessary
+- Make it compelling and persuasive
+
+### Structure:
+1. **Problem/Opportunity Statement**: Clearly articulate what the client needs
+2. **Solution Overview**: High-level description of your proposed approach
+3. **Key Benefits**: Primary value propositions and outcomes
+4. **Why Choose Us**: Brief differentiation statement
+
+Based on the retrieved context and user requirements, write a compelling executive summary that positions our solution as the ideal choice for this opportunity. 
